@@ -17,6 +17,9 @@ First public release.
 - On-page progress pill (`⏳ 4/23`) that hides itself when loading finishes.
 - Toolbar badge showing how many images are still waiting.
 - Popup with live progress bar.
+- Settings panel (gear icon) with:
+  - Language switch: English (default) and Arabic with full right-to-left layout.
+  - List of all enabled sites, each with a **Disable** button.
 
 [Unreleased]: https://github.com/abdallah28r/sequential-image-loader/compare/v1.0.0...HEAD
 [1.0.0]: https://github.com/abdallah28r/sequential-image-loader/releases/tag/v1.0.0

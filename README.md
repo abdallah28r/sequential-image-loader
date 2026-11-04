@@ -41,7 +41,12 @@ Works in Chrome and other Chromium-based browsers (Edge, Brave, Opera, Vivaldi).
 
 To turn it off, open the popup on that site and switch it off again.
 
-> The popup interface is currently in **Arabic**. The first switch enables the site, the menu below it sets the number of concurrent images.
+### Settings ⚙️
+
+Click the gear icon in the popup to:
+
+- **Change the language:** English (default) or العربية (Arabic, with a right-to-left layout).
+- **Manage enabled sites:** see every site where the extension is on, and click **Disable** to turn any of them off without visiting it.
 
 ---
 
@@ -53,7 +58,7 @@ At page start, the extension finds every `<img>` (and `<picture><source>`), temp
 
 | Permission | Why it's needed |
 |---|---|
-| `storage` | Remember which sites you enabled and your concurrency choice. |
+| `storage` | Remember which sites you enabled, your concurrency choice and your language. |
 | `tabs` | Read the current tab's address so the popup knows which site you're on, and reload it after you change a setting. |
 | Content script on all sites | The script has to be present early on any page you *might* enable. On sites you haven't enabled, it reads your setting and stops. |
 
@@ -69,7 +74,7 @@ This extension collects **no data**. It sends nothing anywhere, has no analytics
 
 ## Roadmap
 
-- English interface (with localization support)
+- More interface languages
 - Optional network-level queueing via `declarativeNetRequest` to also cover the first images
 - Chrome Web Store listing
 

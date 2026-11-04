@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en" dir="ltr">
 <head>
 <meta charset="UTF-8" />
 <title>Sequential Image Loader</title>
@@ -14,40 +14,69 @@
         <span class="dot"></span>
       </div>
       <div class="head-text">
-        <h1>تحميل متسلسل للصور</h1>
+        <h1 data-i18n="title">Sequential Image Loader</h1>
         <p id="hostname" class="host">—</p>
       </div>
+      <button id="settingsBtn" class="icon-btn" type="button" aria-expanded="false" aria-controls="settingsView" data-i18n-label="settings" title="Settings" aria-label="Settings">
+        <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="2.6"></circle>
+          <circle cx="12" cy="12" r="6.5"></circle>
+          <path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"></path>
+        </svg>
+      </button>
     </header>
 
-    <div id="unsupported" class="notice hidden">
-      لا يمكن التفعيل على هذه الصفحة.
-    </div>
-
-    <div id="controls" class="controls">
-      <label class="switch-row">
-        <span>تفعيل لهذا الموقع</span>
-        <span class="switch">
-          <input type="checkbox" id="enableToggle" />
-          <span class="slider"></span>
-        </span>
-      </label>
-
-      <label class="field-row">
-        <span>عدد الصور المتزامنة</span>
-        <select id="concurrency">
-          <option value="1">1 (متسلسل بالكامل)</option>
-          <option value="2">2</option>
-          <option value="3">3</option>
-          <option value="5">5</option>
-        </select>
-      </label>
-
-      <div id="status" class="status hidden">
-        <span id="statusText">—</span>
-        <div class="bar"><div id="barFill" class="bar-fill"></div></div>
+    <!-- Main view -->
+    <div id="mainView">
+      <div id="unsupported" class="notice hidden" data-i18n="unsupported">
+        Can't be enabled on this page.
       </div>
 
-      <p class="hint">تفعيل/تغيير الإعداد يعيد تحميل الصفحة تلقائياً.</p>
+      <div id="controls" class="controls">
+        <label class="switch-row">
+          <span data-i18n="enableSite">Enable for this site</span>
+          <span class="switch">
+            <input type="checkbox" id="enableToggle" />
+            <span class="slider"></span>
+          </span>
+        </label>
+
+        <label class="field-row">
+          <span data-i18n="concurrency">Images at a time</span>
+          <select id="concurrency">
+            <option value="1" data-i18n="concurrencyOne">1 (fully sequential)</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="5">5</option>
+          </select>
+        </label>
+
+        <div id="status" class="status hidden">
+          <span id="statusText">—</span>
+          <div class="bar"><div id="barFill" class="bar-fill"></div></div>
+        </div>
+
+        <p class="hint" data-i18n="hint">Changing a setting reloads the page automatically.</p>
+      </div>
+    </div>
+
+    <!-- Settings view -->
+    <div id="settingsView" class="controls hidden">
+      <section class="section">
+        <h2 class="section-title" id="langTitle" data-i18n="language">Language</h2>
+        <div class="segmented" role="radiogroup" aria-labelledby="langTitle">
+          <button type="button" role="radio" data-lang="en" lang="en">English</button>
+          <button type="button" role="radio" data-lang="ar" lang="ar" dir="rtl">العربية</button>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2 class="section-title" data-i18n="enabledSites">Enabled sites</h2>
+        <ul id="siteList" class="site-list hidden"></ul>
+        <p id="noSites" class="empty" data-i18n="noSites">No sites enabled yet.</p>
+      </section>
+
+      <p class="hint" data-i18n="sitesHint">Other open tabs of a disabled site return to normal after a reload.</p>
     </div>
   </div>
   <script src="popup.js"></script>
