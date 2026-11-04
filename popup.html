@@ -41,6 +41,8 @@
           </span>
         </label>
 
+        <p id="ruleStatus" class="rule-status hidden" role="status"></p>
+
         <label class="field-row">
           <span data-i18n="concurrency">Images at a time</span>
           <select id="concurrency">
@@ -77,8 +79,15 @@
       </section>
 
       <p class="hint" data-i18n="sitesHint">Other open tabs of a disabled site return to normal after a reload.</p>
+
+      <button type="button" id="advancedBtn" class="advanced-btn">
+        <span data-i18n="advanced">Advanced settings: URL rules</span>
+        <span class="arrow" aria-hidden="true">→</span>
+      </button>
     </div>
   </div>
+  <script src="i18n.js"></script>
+  <script src="rules.js"></script>
   <script src="popup.js"></script>
 </body>
 </html>

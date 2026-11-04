@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Sequential Image Loader: Advanced settings</title>
+<link rel="stylesheet" href="options.css" />
+</head>
+<body>
+  <main class="page">
+    <header class="page-head">
+      <div class="mark" aria-hidden="true">
+        <span class="dot dot-on"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>
+      </div>
+      <div>
+        <p class="eyebrow" data-i18n="title">Sequential Image Loader</p>
+        <h1 data-i18n="optTitle">Advanced settings</h1>
+      </div>
+      <div class="segmented" role="radiogroup" data-i18n-label="language">
+        <button type="button" role="radio" data-lang="en" lang="en">English</button>
+        <button type="button" role="radio" data-lang="ar" lang="ar" dir="rtl">العربية</button>
+      </div>
+    </header>
+
+    <section class="card">
+      <h2 data-i18n="rulesTitle">URL rules</h2>
+      <p class="muted" data-i18n="rulesIntro">Write one link per line. Use * to mean "anything".</p>
+
+      <div id="fromBox" class="from hidden">
+        <div class="from-label" data-i18n="fromPage">Page you came from</div>
+        <code id="fromUrl" class="from-url" dir="ltr"></code>
+        <div class="from-actions">
+          <button type="button" id="addInclude" class="btn btn-small" data-i18n="addInclude">+ Always on</button>
+          <button type="button" id="addExclude" class="btn btn-small" data-i18n="addExclude">+ Never on</button>
+        </div>
+      </div>
+
+      <div class="rule-grid">
+        <div class="rule-col">
+          <label for="includeText" class="rule-title">
+            <span class="tag tag-on" aria-hidden="true">✓</span>
+            <span data-i18n="includeTitle">Always on for these links</span>
+          </label>
+          <p class="muted small" data-i18n="includeHelp"></p>
+          <textarea id="includeText" spellcheck="false" autocomplete="off" dir="ltr" rows="8" placeholder="https://example.com/comics/*"></textarea>
+          <div class="count" id="includeCount"></div>
+        </div>
+        <div class="rule-col">
+          <label for="excludeText" class="rule-title">
+            <span class="tag tag-off" aria-hidden="true">✕</span>
+            <span data-i18n="excludeTitle">Never on for these links</span>
+          </label>
+          <p class="muted small" data-i18n="excludeHelp"></p>
+          <textarea id="excludeText" spellcheck="false" autocomplete="off" dir="ltr" rows="8" placeholder="https://example.com/comics/ABD"></textarea>
+          <div class="count" id="excludeCount"></div>
+        </div>
+      </div>
+
+      <div class="save-row">
+        <button type="button" id="saveBtn" class="btn btn-primary" data-i18n="save">Save</button>
+        <span id="saveState" class="save-state" role="status" aria-live="polite"></span>
+      </div>
+      <p class="muted small" data-i18n="applyNote"></p>
+    </section>
+
+    <section class="card">
+      <h2><label for="testUrl" data-i18n="testTitle">Test a link</label></h2>
+      <input id="testUrl" type="url" dir="ltr" spellcheck="false" autocomplete="off" data-i18n-placeholder="testPlaceholder" />
+      <p id="testResult" class="test-result" role="status" aria-live="polite"></p>
+    </section>
+
+    <section class="card">
+      <h2 data-i18n="tipsTitle">How links are matched</h2>
+      <ul class="tips">
+        <li data-i18n="tip1"></li>
+        <li data-i18n="tip2"></li>
+        <li data-i18n="tip3"></li>
+        <li data-i18n="tip4"></li>
+        <li data-i18n="tip5"></li>
+      </ul>
+    </section>
+  </main>
+  <script src="i18n.js"></script>
+  <script src="rules.js"></script>
+  <script src="options.js"></script>
+</body>
+</html>

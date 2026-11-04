@@ -1,17 +1,26 @@
 // Sequential Image Loader — content script
-// Runs on every page at document_start, but only does anything if the
-// current hostname is enabled in storage. Off by default.
+// Runs on every page at document_start. It only does work when the page is
+// active: its site is enabled, or an "Always on" URL rule matches, and no
+// "Never on" rule matches. Off by default. Matching lives in rules.js.
 (function () {
   'use strict';
 
   if (window.__silInjected) return;
   window.__silInjected = true;
 
-  const hostname = location.hostname;
+  const Rules = globalThis.SILRules;
   const STORAGE_KEY = 'siteSettings';
+  const RULES_KEY = Rules.RULES_KEY;
   const PROCESSED_ATTR = 'data-sil-processed';
+  const hostname = location.hostname;
 
-  let settings = null;
+  let siteEntry = { enabled: false, concurrency: 1 };
+  let compiled = { include: [], exclude: [] };
+  let active = false;
+  let started = false; // has the first activation scanned the page yet?
+  let observer = null;
+  let lastHref = location.href;
+
   let queue = [];
   let activeCount = 0;
   let concurrency = 1;
@@ -19,13 +28,6 @@
   let totalDone = 0;
   let indicatorEl = null;
   let hideTimer = null;
-
-  function getSiteSettings(cb) {
-    chrome.storage.local.get([STORAGE_KEY], (res) => {
-      const all = res[STORAGE_KEY] || {};
-      cb(all[hostname] || { enabled: false, concurrency: 1 });
-    });
-  }
 
   // --- Detection -----------------------------------------------------
   // Handles plain <img src>, <img srcset>, and <picture><source srcset>.
@@ -36,11 +38,12 @@
     if (img.hasAttribute(PROCESSED_ATTR)) return false;
     const src = img.getAttribute('src');
     if (!src || src.startsWith('data:') || src.startsWith('blob:')) return false;
+    if (img.complete && img.naturalWidth > 0) return false; // already loaded
     return true;
   }
 
   function collectFrom(root) {
-    if (!settings || !settings.enabled) return;
+    if (!active) return;
     if (root.nodeType !== 1) return;
     if (root.tagName === 'IMG') enqueueImg(root);
     if (root.querySelectorAll) {
@@ -88,6 +91,12 @@
     }
   }
 
+  // Release everything still waiting (used when the page becomes inactive,
+  // e.g. the site navigated to an excluded URL without reloading).
+  function flushQueue() {
+    while (queue.length > 0) loadOne(queue.shift());
+  }
+
   function loadOne(img) {
     activeCount++;
     const realSrc = img.getAttribute('data-sil-src');
@@ -118,7 +127,7 @@
   // --- On-page status pill ---------------------------------------------
 
   function updateIndicator() {
-    if (!settings || !settings.enabled || totalSeen === 0) return;
+    if (totalSeen === 0) return;
     if (!indicatorEl) createIndicator();
 
     const remaining = totalSeen - totalDone;
@@ -161,32 +170,77 @@
 
   chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
     if (msg && msg.type === 'SIL_GET_STATS') {
-      sendResponse({ enabled: !!(settings && settings.enabled), total: totalSeen, done: totalDone });
+      sendResponse({ enabled: active, total: totalSeen, done: totalDone });
     }
   });
 
-  // --- Init --------------------------------------------------------------
+  // --- Activation --------------------------------------------------------
 
-  function init() {
-    getSiteSettings((s) => {
-      settings = s;
-      if (!settings.enabled) return;
-      concurrency = Math.max(1, parseInt(settings.concurrency, 10) || 1);
+  // Only watch the page if it could ever become active here: the site is
+  // enabled, or some "Always on" rule could match a page on this host.
+  function mightBeActive() {
+    // location.host keeps the port, so rules like "localhost:8080/*" work too.
+    return siteEntry.enabled || Rules.couldMatchHost(compiled.include, location.host);
+  }
 
-      const start = () => {
-        collectFrom(document.documentElement);
-        const mo = new MutationObserver((mutations) => {
-          for (const m of mutations) {
-            m.addedNodes.forEach(collectFrom);
-          }
-        });
-        mo.observe(document.documentElement, { childList: true, subtree: true });
-      };
+  function ensureObserver() {
+    if (observer) return;
+    observer = new MutationObserver((mutations) => {
+      checkUrl();
+      if (!active) return;
+      for (const m of mutations) {
+        m.addedNodes.forEach(collectFrom);
+      }
+    });
+    observer.observe(document.documentElement, { childList: true, subtree: true });
+  }
 
-      if (document.body) start();
-      else document.addEventListener('DOMContentLoaded', start, { once: true });
+  function recompute() {
+    const wasActive = active;
+    active = Rules.evaluate(location.href, compiled, siteEntry.enabled).active;
+    concurrency = Math.max(1, parseInt(siteEntry.concurrency, 10) || 1);
+
+    if (mightBeActive()) ensureObserver();
+
+    if (active && !wasActive) {
+      // First activation on page load: take over images already in the DOM.
+      // Later activations (URL change, rule edit) only affect new images.
+      if (!started) collectFrom(document.documentElement);
+      pump();
+    } else if (!active && wasActive) {
+      flushQueue();
+    }
+    started = true;
+  }
+
+  // Single-page sites change the URL without reloading the page.
+  function checkUrl() {
+    if (location.href === lastHref) return;
+    lastHref = location.href;
+    recompute();
+  }
+
+  window.addEventListener('popstate', checkUrl);
+  window.addEventListener('hashchange', checkUrl);
+  if (window.navigation && window.navigation.addEventListener) {
+    window.navigation.addEventListener('currententrychange', checkUrl);
+  }
+
+  // Apply settings or rule edits made in the popup / options page right away.
+  chrome.storage.onChanged.addListener((changes, area) => {
+    if (area !== 'local') return;
+    if (!changes[STORAGE_KEY] && !changes[RULES_KEY]) return;
+    load(recompute);
+  });
+
+  function load(cb) {
+    chrome.storage.local.get([STORAGE_KEY, RULES_KEY], (res) => {
+      const all = res[STORAGE_KEY] || {};
+      siteEntry = all[hostname] || { enabled: false, concurrency: 1 };
+      compiled = Rules.compile(res[RULES_KEY]);
+      cb();
     });
   }
 
-  init();
+  load(recompute);
 })();

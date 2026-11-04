@@ -1,55 +1,9 @@
 const STORAGE_KEY = 'siteSettings';
-const LANG_KEY = 'uiLang';
-const DEFAULT_LANG = 'en';
+const FROM_KEY = 'silFromUrl'; // handed to the options page via storage.session
 
-// --- Translations --------------------------------------------------------
-
-const STRINGS = {
-  en: {
-    title: 'Sequential Image Loader',
-    unsupported: "Can't be enabled on this page.",
-    unsupportedHost: 'Not supported',
-    enableSite: 'Enable for this site',
-    concurrency: 'Images at a time',
-    concurrencyOne: '1 (fully sequential)',
-    hint: 'Changing a setting reloads the page automatically.',
-    progress: '{done} / {total} images',
-    settings: 'Settings',
-    language: 'Language',
-    enabledSites: 'Enabled sites',
-    noSites: 'No sites enabled yet.',
-    disable: 'Disable',
-    disableFor: 'Disable for {host}',
-    sitesHint: 'Other open tabs of a disabled site return to normal after a reload.',
-  },
-  ar: {
-    title: 'تحميل متسلسل للصور',
-    unsupported: 'لا يمكن التفعيل على هذه الصفحة.',
-    unsupportedHost: 'غير مدعوم',
-    enableSite: 'تفعيل لهذا الموقع',
-    concurrency: 'عدد الصور المتزامنة',
-    concurrencyOne: '1 (متسلسل بالكامل)',
-    hint: 'تفعيل/تغيير الإعداد يعيد تحميل الصفحة تلقائياً.',
-    progress: '{done} / {total} صورة',
-    settings: 'الإعدادات',
-    language: 'اللغة',
-    enabledSites: 'المواقع المفعّلة',
-    noSites: 'لا توجد مواقع مفعّلة بعد.',
-    disable: 'إيقاف',
-    disableFor: 'إيقاف لـ {host}',
-    sitesHint: 'التبويبات المفتوحة الأخرى للموقع الموقوف ترجع طبيعية بعد إعادة تحميلها.',
-  },
-};
-
-let lang = DEFAULT_LANG;
-
-function t(key, vars) {
-  let s = (STRINGS[lang] && STRINGS[lang][key]) || STRINGS.en[key] || key;
-  if (vars) {
-    for (const [k, v] of Object.entries(vars)) s = s.split(`{${k}}`).join(String(v));
-  }
-  return s;
-}
+const I18n = globalThis.SILI18n;
+const Rules = globalThis.SILRules;
+const t = I18n.t;
 
 // --- Elements & state ------------------------------------------------------
 
@@ -58,6 +12,7 @@ const els = {
   unsupported: document.getElementById('unsupported'),
   controls: document.getElementById('controls'),
   enableToggle: document.getElementById('enableToggle'),
+  ruleStatus: document.getElementById('ruleStatus'),
   concurrency: document.getElementById('concurrency'),
   status: document.getElementById('status'),
   statusText: document.getElementById('statusText'),
@@ -67,12 +22,14 @@ const els = {
   settingsView: document.getElementById('settingsView'),
   siteList: document.getElementById('siteList'),
   noSites: document.getElementById('noSites'),
+  advancedBtn: document.getElementById('advancedBtn'),
   langButtons: document.querySelectorAll('[data-lang]'),
 };
 
 let currentTab = null;
 let hostname = null;
 let lastStats = null;
+let compiledRules = { include: [], exclude: [] };
 
 function isSupportedUrl(url) {
   return /^https?:\/\//i.test(url || '');
@@ -99,32 +56,38 @@ async function saveSettings(next) {
 // --- Language --------------------------------------------------------------
 
 function applyLang() {
-  const root = document.documentElement;
-  root.lang = lang;
-  root.dir = lang === 'ar' ? 'rtl' : 'ltr';
-
-  document.querySelectorAll('[data-i18n]').forEach((el) => {
-    el.textContent = t(el.dataset.i18n);
-  });
-  document.querySelectorAll('[data-i18n-label]').forEach((el) => {
-    const label = t(el.dataset.i18nLabel);
-    el.title = label;
-    el.setAttribute('aria-label', label);
-  });
+  I18n.applyTo(document);
   els.langButtons.forEach((btn) => {
-    btn.setAttribute('aria-checked', String(btn.dataset.lang === lang));
+    btn.setAttribute('aria-checked', String(btn.dataset.lang === I18n.lang));
   });
-
   if (!hostname) els.hostname.textContent = currentTab ? t('unsupportedHost') : '—';
+  renderRuleStatus();
   renderStats();
   renderSiteList();
 }
 
 async function setLang(next) {
-  if (!STRINGS[next] || next === lang) return;
-  lang = next;
+  if (next === I18n.lang) return;
+  I18n.setLang(next);
   applyLang();
-  await chrome.storage.local.set({ [LANG_KEY]: lang });
+  await chrome.storage.local.set({ [I18n.LANG_KEY]: I18n.lang });
+}
+
+// --- URL rule status for the current page -----------------------------------
+
+function renderRuleStatus() {
+  if (!hostname || !currentTab) {
+    els.ruleStatus.classList.add('hidden');
+    return;
+  }
+  const r = Rules.evaluate(currentTab.url, compiledRules, els.enableToggle.checked);
+  if (r.reason !== 'include' && r.reason !== 'exclude') {
+    els.ruleStatus.classList.add('hidden');
+    return;
+  }
+  const key = r.reason === 'include' ? 'ruleOn' : 'ruleOff';
+  els.ruleStatus.textContent = t(key, { rule: r.rule });
+  els.ruleStatus.className = 'rule-status ' + (r.reason === 'include' ? 'is-on' : 'is-off');
 }
 
 // --- Live stats ------------------------------------------------------------
@@ -204,16 +167,31 @@ async function disableSite(host) {
     els.enableToggle.checked = false;
     lastStats = null;
     renderStats();
+    renderRuleStatus();
     chrome.tabs.reload(currentTab.id);
   }
   renderSiteList();
 }
 
+async function openAdvanced() {
+  // Let the options page offer "add this page" buttons for the current tab.
+  if (chrome.storage.session) {
+    if (hostname && currentTab) {
+      await chrome.storage.session.set({ [FROM_KEY]: currentTab.url });
+    } else {
+      await chrome.storage.session.remove(FROM_KEY);
+    }
+  }
+  await chrome.runtime.openOptionsPage();
+  window.close();
+}
+
 // --- Init ------------------------------------------------------------------
 
 async function init() {
-  const stored = await chrome.storage.local.get([LANG_KEY]);
-  if (STRINGS[stored[LANG_KEY]]) lang = stored[LANG_KEY];
+  await I18n.loadLang();
+  const stored = await chrome.storage.local.get([Rules.RULES_KEY]);
+  compiledRules = Rules.compile(stored[Rules.RULES_KEY]);
 
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   currentTab = tab || null;
@@ -225,6 +203,7 @@ async function init() {
   els.langButtons.forEach((btn) => {
     btn.addEventListener('click', () => setLang(btn.dataset.lang));
   });
+  els.advancedBtn.addEventListener('click', openAdvanced);
 
   if (!tab || !isSupportedUrl(tab.url)) {
     els.controls.classList.add('hidden');

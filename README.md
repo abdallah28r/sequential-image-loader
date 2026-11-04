@@ -8,6 +8,7 @@ Sequential Image Loader is a small Chrome extension that puts those images in a 
 
 - 🔌 **Off by default.** It does nothing until you turn it on for a specific site.
 - 🌐 **Per-site setting.** Turn it on for one site and leave every other site untouched.
+- 🎯 **URL rules.** Turn it on or off for specific links, with `*` wildcards (for example `https://example.com/comics/*`).
 - 📊 **Live progress.** A small badge on the page and on the toolbar icon shows how many images are left.
 - 🔒 **Private.** No tracking, no analytics, no network requests of its own. Settings stay in your browser.
 
@@ -47,18 +48,47 @@ Click the gear icon in the popup to:
 
 - **Change the language:** English (default) or العربية (Arabic, with a right-to-left layout).
 - **Manage enabled sites:** see every site where the extension is on, and click **Disable** to turn any of them off without visiting it.
+- **Open Advanced settings** for URL rules (below).
+
+### URL rules (advanced)
+
+Sometimes you want the extension only on *some* pages of a site, or everywhere *except* a few pages. Open **Settings → Advanced settings: URL rules** and write one link per line in either list:
+
+| List | What it does |
+|---|---|
+| ✅ **Always on for these links** | Sequential loading runs on matching pages, even if the whole site isn't enabled. |
+| ⛔ **Never on for these links** | Sequential loading never runs on matching pages. **This always wins.** |
+
+Use `*` to mean "anything":
+
+```text
+https://example.com/comics/*            every page under /comics/
+https://example.com/node/*/8/simple     any id in the middle
+https://*.example.com/*                 every subdomain
+https://example.com/comics/ABD          just this page
+```
+
+Matching rules:
+
+- `http` / `https` and `www.` are ignored, and so is letter case.
+- `?…` and `#…` at the end of a link are ignored (so `/comics/ABD` also matches `/comics/ABD?page=2`), unless your rule contains `?` or `#` itself.
+- A trailing `/` is ignored, and `/*` at the end also matches the page itself (`/comics/*` matches `/comics`).
+
+The page shows a **"Page you came from"** box with one-click **+ Always on** / **+ Never on** buttons, and a **Test a link** box that tells you whether a link will be on or off, and which rule decided it.
+
+Rules apply right away to new images. On sites that change the URL without reloading the page, the rules are checked again on every URL change.
 
 ---
 
 ## How it works
 
-At page start, the extension finds every `<img>` (and `<picture><source>`), temporarily removes its `src`/`srcset` before the download begins, and puts the image in a queue. It then restores one image at a time and waits for its `load` or `error` event before starting the next. A `MutationObserver` also catches images that are added later (infinite scroll, AJAX content).
+At page start, the extension checks your site setting and URL rules. If the page is active, it finds every `<img>` (and `<picture><source>`), temporarily removes its `src`/`srcset` before the download begins, and puts the image in a queue. It then restores one image at a time and waits for its `load` or `error` event before starting the next. A `MutationObserver` also catches images that are added later (infinite scroll, AJAX content).
 
 ## Permissions
 
 | Permission | Why it's needed |
 |---|---|
-| `storage` | Remember which sites you enabled, your concurrency choice and your language. |
+| `storage` | Remember which sites you enabled, your concurrency choice, your URL rules and your language. |
 | `tabs` | Read the current tab's address so the popup knows which site you're on, and reload it after you change a setting. |
 | Content script on all sites | The script has to be present early on any page you *might* enable. On sites you haven't enabled, it reads your setting and stops. |
 
