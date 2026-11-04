@@ -6,9 +6,8 @@ Some pages (long galleries, comic readers, photo archives) ask the browser to do
 
 Sequential Image Loader is a small Chrome extension that puts those images in a queue and loads them **in order, one after another** (or a few at a time, your choice). The first images appear quickly and the page stays responsive.
 
-- 🔌 **Off by default.** It does nothing until you turn it on for a specific site.
-- 🌐 **Per-site setting.** Turn it on for one site and leave every other site untouched.
-- 🎯 **URL rules.** Turn it on or off for specific links, with `*` wildcards (for example `https://example.com/comics/*`).
+- 🔌 **Off by default.** It does nothing until you turn it on for a site or a page.
+- 🎯 **You choose where it runs.** A whole site, one section (`https://example.com/comics/*`), or a single page. You can also block pages where it should never run.
 - 📊 **Live progress.** A small badge on the page and on the toolbar icon shows how many images are left.
 - 🔒 **Private.** No tracking, no analytics, no network requests of its own. Settings stay in your browser.
 
@@ -34,30 +33,40 @@ Works in Chrome and other Chromium-based browsers (Edge, Brave, Opera, Vivaldi).
 ## How to use
 
 1. Open the page that loads slowly.
-2. Click the extension icon.
-3. Switch on **Enable for this site**. The page reloads automatically.
+2. Click the extension icon. The popup tells you whether it's running on this page.
+3. Click **Turn on for the whole site** or **Turn on for this page only**. The page reloads automatically.
 4. Images now load in order. A small counter in the corner (for example `⏳ 4/23`) shows progress and disappears when everything has loaded.
 
-**Concurrent images:** choose `1` for strictly one at a time, or `2`, `3` or `5` for a bit more speed while still avoiding the flood.
+The popup only shows the buttons that make sense for the page you're on:
 
-To turn it off, open the popup on that site and switch it off again.
+| The page is… | Buttons you see |
+|---|---|
+| Off | **Turn on for the whole site**, **Turn on for this page only** |
+| On, by a whole-site or section rule | **Never on this page** (and **whole site** if it's only a section) |
+| On, by a "this page only" rule | **Turn on for the whole site** |
+| Blocked by a "Never on" rule | **Unblock this page** |
+
+The popup also lists the rules that affect the current page, each with a **Remove** button.
+
+**Images at a time:** choose `1` for strictly one at a time, or `2`, `3` or `5` for a bit more speed while still avoiding the flood.
 
 ### Settings ⚙️
 
-Click the gear icon in the popup to:
+Click the gear icon in the popup to change the language (English by default, or العربية with a right-to-left layout), or click **Open Advanced settings** at the bottom of the popup to manage all your rules.
 
-- **Change the language:** English (default) or العربية (Arabic, with a right-to-left layout).
-- **Manage enabled sites:** see every site where the extension is on, and click **Disable** to turn any of them off without visiting it.
-- **Open Advanced settings** for URL rules (below).
+### Advanced settings: all your rules
 
-### URL rules (advanced)
+Every choice you make is saved as a **rule**. The Advanced settings page lists them by site:
 
-Sometimes you want the extension only on *some* pages of a site, or everywhere *except* a few pages. Open **Settings → Advanced settings: URL rules** and write one link per line in either list:
+- Each site is one row with its logo and how many rules it has (✓ always on, ✕ never on). Click it to open it.
+- Inside, the full links are listed in two sections: **✓ Always on** and **✕ Never on**.
+- Each section has its own **+ Add** button. It opens a box that already contains the site name, so you only type the rest (for example `/comics/*`).
+- **✕** next to a link deletes it. Changes are saved immediately.
+- **+ Add site** at the top adds a site that has no rules yet.
 
-| List | What it does |
-|---|---|
-| ✅ **Always on for these links** | Sequential loading runs on matching pages, even if the whole site isn't enabled. |
-| ⛔ **Never on for these links** | Sequential loading never runs on matching pages. **This always wins.** |
+**"Never on" always wins.** If a link matches both lists, the extension stays off. Adding a link to one list removes it from the other.
+
+The page and the popup stay in sync: a change in one shows up in the other right away.
 
 Use `*` to mean "anything":
 
@@ -74,7 +83,7 @@ Matching rules:
 - `?…` and `#…` at the end of a link are ignored (so `/comics/ABD` also matches `/comics/ABD?page=2`), unless your rule contains `?` or `#` itself.
 - A trailing `/` is ignored, and `/*` at the end also matches the page itself (`/comics/*` matches `/comics`).
 
-The page shows a **"Page you came from"** box with one-click **+ Always on** / **+ Never on** buttons, and a **Test a link** box that tells you whether a link will be on or off, and which rule decided it.
+When you open the page from the popup, the site you were on is already open. A **Test a link** box tells you whether a link will be on or off, and which rule decided it.
 
 Rules apply right away to new images. On sites that change the URL without reloading the page, the rules are checked again on every URL change.
 
@@ -82,19 +91,20 @@ Rules apply right away to new images. On sites that change the URL without reloa
 
 ## How it works
 
-At page start, the extension checks your site setting and URL rules. If the page is active, it finds every `<img>` (and `<picture><source>`), temporarily removes its `src`/`srcset` before the download begins, and puts the image in a queue. It then restores one image at a time and waits for its `load` or `error` event before starting the next. A `MutationObserver` also catches images that are added later (infinite scroll, AJAX content).
+At page start, the extension checks your rules. If the page is active, it finds every `<img>` (and `<picture><source>`), temporarily removes its `src`/`srcset` before the download begins, and puts the image in a queue. It then restores one image at a time and waits for its `load` or `error` event before starting the next. A `MutationObserver` also catches images that are added later (infinite scroll, AJAX content).
 
 ## Permissions
 
 | Permission | Why it's needed |
 |---|---|
-| `storage` | Remember which sites you enabled, your concurrency choice, your URL rules and your language. |
-| `tabs` | Read the current tab's address so the popup knows which site you're on, and reload it after you change a setting. |
-| Content script on all sites | The script has to be present early on any page you *might* enable. On sites you haven't enabled, it reads your setting and stops. |
+| `storage` | Remember your rules, your "images at a time" choice and your language. |
+| `tabs` | Read the current tab's address so the popup knows which page you're on, and reload it after you change a setting. |
+| `favicon` | Show each site's logo on the Advanced settings page. The logo comes from Chrome's own icon cache; nothing is downloaded. |
+| Content script on all sites | The script has to be present early on any page you *might* turn it on for. Where no rule turns it on, it reads your rules and stops. |
 
 ## Privacy
 
-This extension collects **no data**. It sends nothing anywhere, has no analytics, and makes no network requests of its own. Your per-site settings are stored locally with `chrome.storage.local`. See [PRIVACY.md](PRIVACY.md).
+This extension collects **no data**. It sends nothing anywhere, has no analytics, and makes no network requests of its own. Your rules are stored locally with `chrome.storage.local`. See [PRIVACY.md](PRIVACY.md).
 
 ## Known limitations
 

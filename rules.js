@@ -26,9 +26,18 @@
     return s.replace(/[.+?^${}()|[\]\\]/g, '\\$&');
   }
 
+  // "%D8%AA%D8%B9..." -> readable letters, so encoded and plain links match.
+  function safeDecode(s) {
+    try {
+      return decodeURI(s);
+    } catch (_) {
+      return s;
+    }
+  }
+
   // Bring a URL or a pattern to a comparable form.
   function normalize(input, keepQuery) {
-    let s = String(input).trim();
+    let s = safeDecode(String(input).trim());
     s = s.replace(/^[a-z][a-z0-9+.-]*:\/\//i, ''); // scheme
     s = s.replace(/^www\./i, '');
     if (!keepQuery) s = s.replace(/[?#].*$/, '');
@@ -36,11 +45,33 @@
     return s;
   }
 
+  function hasQuery(pattern) {
+    return /[?#]/.test(String(pattern).trim().replace(/^[a-z][a-z0-9+.-]*:\/\//i, ''));
+  }
+
+  // One comparable key per rule: two rules with the same key are the same rule.
+  function keyOf(pattern) {
+    return normalize(pattern, hasQuery(pattern)).toLowerCase();
+  }
+
+  // Which site a rule belongs to (for grouping), or null for wildcard hosts.
+  function siteOf(pattern) {
+    const host = keyOf(pattern).split('/')[0];
+    return !host || host.includes('*') ? null : host;
+  }
+
+  // Readable rule without the site part, e.g. "/comics/*".
+  function pathOf(pattern) {
+    const n = normalize(pattern, hasQuery(pattern));
+    const i = n.indexOf('/');
+    return i === -1 ? '' : n.slice(i);
+  }
+
   function compileOne(pattern) {
     const source = String(pattern).trim();
     if (!source) return null;
 
-    const keepQuery = /[?#]/.test(source.replace(/^[a-z][a-z0-9+.-]*:\/\//i, ''));
+    const keepQuery = hasQuery(source);
     let p = normalize(source, keepQuery);
     if (!p) return null;
 
@@ -103,5 +134,5 @@
     return { active: false, reason: 'none' };
   }
 
-  root.SILRules = { RULES_KEY, normalize, compile, compileOne, parseLines, evaluate, couldMatchHost };
+  root.SILRules = { RULES_KEY, normalize, safeDecode, keyOf, siteOf, pathOf, compile, compileOne, parseLines, evaluate, couldMatchHost };
 })(typeof globalThis !== 'undefined' ? globalThis : this);

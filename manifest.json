@@ -1,9 +1,13 @@
 {
   "manifest_version": 3,
   "name": "Sequential Image Loader",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Loads page images one at a time instead of all in parallel, so slow image-heavy gallery pages become responsive again. Off by default; turn it on per site or per URL pattern.",
-  "permissions": ["storage", "tabs"],
+  "permissions": [
+    "storage",
+    "tabs",
+    "favicon"
+  ],
   "action": {
     "default_popup": "popup.html",
     "default_title": "Sequential Image Loader",
@@ -22,8 +26,13 @@
   },
   "content_scripts": [
     {
-      "matches": ["<all_urls>"],
-      "js": ["rules.js", "content.js"],
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "rules.js",
+        "content.js"
+      ],
       "run_at": "document_start",
       "all_frames": true
     }

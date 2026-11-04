@@ -5,6 +5,24 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-11-05
+
+### Changed
+- **Everything is a rule now.** The separate "Enable for this site" switch is gone; turning a whole site on simply adds the rule `site.com/*`. Sites you enabled in an earlier version are converted to that rule automatically, so nothing stops working.
+- **Simpler popup.** It shows whether the extension runs on the current page and why, and only the buttons that make sense there: *Turn on for the whole site*, *Turn on for this page only*, *Never on this page*, or *Unblock this page*. It also lists the rules that affect the page, each with a *Remove* button.
+- **New Advanced settings page.** Rules are grouped by site. Each site is a folded row with its logo and rule counts; opening it shows the full links under *Always on* and *Never on*, each section with its own *+ Add* button (the site name is filled in for you). Changes save immediately, with no Save button.
+- Adding a link to one list removes it from the other, so a rule can't be in both.
+- Links with non-Latin letters (for example Arabic) are stored and shown readably instead of as `%D8%…` codes, and both forms match.
+
+### Added
+- *Open Advanced settings* link at the bottom of the popup.
+- *+ Add site* on the Advanced settings page for sites that have no rules yet.
+- The popup and the Advanced settings page stay in sync while both are open.
+- `favicon` permission, used only to show site logos from Chrome's own icon cache.
+
+### Removed
+- The list of enabled sites in the popup's settings panel (all rules are on the Advanced settings page now).
+
 ## [1.1.0] - 2026-11-04
 
 ### Added
@@ -40,6 +58,7 @@ First public release.
   - Language switch: English (default) and Arabic with full right-to-left layout.
   - List of all enabled sites, each with a **Disable** button.
 
-[Unreleased]: https://github.com/abdallah28r/sequential-image-loader/compare/v1.1.0...HEAD
+[Unreleased]: https://github.com/abdallah28r/sequential-image-loader/compare/v1.2.0...HEAD
+[1.2.0]: https://github.com/abdallah28r/sequential-image-loader/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/abdallah28r/sequential-image-loader/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/abdallah28r/sequential-image-loader/releases/tag/v1.0.0

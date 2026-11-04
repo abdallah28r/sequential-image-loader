@@ -14,7 +14,7 @@
         <span class="dot"></span>
       </div>
       <div class="head-text">
-        <h1 data-i18n="title">Sequential Image Loader</h1>
+        <h1><span data-i18n="title">Sequential Image Loader</span></h1>
         <p id="hostname" class="host">—</p>
       </div>
       <button id="settingsBtn" class="icon-btn" type="button" aria-expanded="false" aria-controls="settingsView" data-i18n-label="settings" title="Settings" aria-label="Settings">
@@ -33,15 +33,25 @@
       </div>
 
       <div id="controls" class="controls">
-        <label class="switch-row">
-          <span data-i18n="enableSite">Enable for this site</span>
-          <span class="switch">
-            <input type="checkbox" id="enableToggle" />
-            <span class="slider"></span>
-          </span>
-        </label>
+        <div id="stateBanner" class="state-banner" role="status">
+          <span class="state-dot" aria-hidden="true"></span>
+          <div class="state-text">
+            <strong id="stateTitle"></strong>
+            <span id="stateReason"></span>
+          </div>
+        </div>
 
-        <p id="ruleStatus" class="rule-status hidden" role="status"></p>
+        <div class="actions">
+          <button type="button" id="addSite" class="action-btn"><span class="ic on" aria-hidden="true">✓</span><span data-i18n="actSite">Turn on for the whole site</span></button>
+          <button type="button" id="addPage" class="action-btn"><span class="ic on" aria-hidden="true">✓</span><span data-i18n="actPage">Turn on for this page only</span></button>
+          <button type="button" id="blockPage" class="action-btn"><span class="ic off" aria-hidden="true">✕</span><span data-i18n="actBlock">Never on this page</span></button>
+          <button type="button" id="unblockPage" class="action-btn"><span class="ic on" aria-hidden="true">↺</span><span data-i18n="actUnblock">Unblock this page</span></button>
+        </div>
+
+        <div id="matchBox" class="match-box hidden">
+          <div class="section-title" data-i18n="matchTitle">Rules affecting this page</div>
+          <ul id="matchList" class="site-list"></ul>
+        </div>
 
         <label class="field-row">
           <span data-i18n="concurrency">Images at a time</span>
@@ -59,6 +69,7 @@
         </div>
 
         <p class="hint" data-i18n="hint">Changing a setting reloads the page automatically.</p>
+        <button type="button" id="openAdvancedLink" class="link-btn" data-i18n="openAdvanced">Open Advanced settings</button>
       </div>
     </div>
 
@@ -73,15 +84,12 @@
       </section>
 
       <section class="section">
-        <h2 class="section-title" data-i18n="enabledSites">Enabled sites</h2>
-        <ul id="siteList" class="site-list hidden"></ul>
-        <p id="noSites" class="empty" data-i18n="noSites">No sites enabled yet.</p>
+        <h2 class="section-title" data-i18n="yourRules">Your rules</h2>
+        <p id="rulesSummary" class="empty"></p>
       </section>
 
-      <p class="hint" data-i18n="sitesHint">Other open tabs of a disabled site return to normal after a reload.</p>
-
       <button type="button" id="advancedBtn" class="advanced-btn">
-        <span data-i18n="advanced">Advanced settings: URL rules</span>
+        <span data-i18n="advancedAll">Manage all rules</span>
         <span class="arrow" aria-hidden="true">→</span>
       </button>
     </div>
