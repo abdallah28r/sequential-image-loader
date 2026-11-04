@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<title>Sequential Image Loader</title>
+<link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <div class="panel">
+    <header class="head">
+      <div class="mark" aria-hidden="true">
+        <span class="dot dot-on"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>
+      </div>
+      <div class="head-text">
+        <h1>تحميل متسلسل للصور</h1>
+        <p id="hostname" class="host">—</p>
+      </div>
+    </header>
+
+    <div id="unsupported" class="notice hidden">
+      لا يمكن التفعيل على هذه الصفحة.
+    </div>
+
+    <div id="controls" class="controls">
+      <label class="switch-row">
+        <span>تفعيل لهذا الموقع</span>
+        <span class="switch">
+          <input type="checkbox" id="enableToggle" />
+          <span class="slider"></span>
+        </span>
+      </label>
+
+      <label class="field-row">
+        <span>عدد الصور المتزامنة</span>
+        <select id="concurrency">
+          <option value="1">1 (متسلسل بالكامل)</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="5">5</option>
+        </select>
+      </label>
+
+      <div id="status" class="status hidden">
+        <span id="statusText">—</span>
+        <div class="bar"><div id="barFill" class="bar-fill"></div></div>
+      </div>
+
+      <p class="hint">تفعيل/تغيير الإعداد يعيد تحميل الصفحة تلقائياً.</p>
+    </div>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>

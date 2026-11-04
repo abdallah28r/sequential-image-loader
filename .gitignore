@@ -1,0 +1,21 @@
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor / tool folders
+.vscode/
+.idea/
+.claude/
+
+# Build outputs (release zips are attached to GitHub Releases, not committed)
+dist/
+*.zip
+*.crx
+
+# NEVER commit the private key Chrome creates when you "Pack extension"
+*.pem
+
+# Misc
+*.log
+.env
