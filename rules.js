@@ -10,8 +10,8 @@
 //   case         ignored
 //
 // Examples:
-//   https://example.com/comics/*         every page under /comics/
-//   https://example.com/node/*/8/simple  any id in the middle
+//   https://example.com/gallery/*        every page under /gallery/
+//   https://example.com/albums/*/photos  any album in the middle
 //   https://*.example.com/*              every subdomain
 //
 // Exclude rules always win over include rules.
@@ -60,7 +60,7 @@
     return !host || host.includes('*') ? null : host;
   }
 
-  // Readable rule without the site part, e.g. "/comics/*".
+  // Readable rule without the site part, e.g. "/gallery/*".
   function pathOf(pattern) {
     const n = normalize(pattern, hasQuery(pattern));
     const i = n.indexOf('/');

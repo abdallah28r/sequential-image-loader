@@ -7,7 +7,7 @@ Some pages (long galleries, comic readers, photo archives) ask the browser to do
 Sequential Image Loader is a small Chrome extension that puts those images in a queue and loads them **in order, one after another** (or a few at a time, your choice). The first images appear quickly and the page stays responsive.
 
 - 🔌 **Off by default.** It does nothing until you turn it on for a site or a page.
-- 🎯 **You choose where it runs.** A whole site, one section (`https://example.com/comics/*`), or a single page. You can also block pages where it should never run.
+- 🎯 **You choose where it runs.** A whole site, one section (`https://example.com/gallery/*`), or a single page. You can also block pages where it should never run.
 - 📊 **Live progress.** A small badge on the page and on the toolbar icon shows how many images are left.
 - 🌓 **Light, Dark or Auto.** The interface follows your system, or the theme you pick.
 - 🔒 **Private.** No tracking, no analytics, no network requests of its own. Settings stay in your browser.
@@ -61,7 +61,7 @@ Every choice you make is saved as a **rule**. The Advanced settings page lists t
 
 - Each site is one row with its logo and how many rules it has (✓ always on, ✕ never on). Click it to open it.
 - Inside, the full links are listed in two sections: **✓ Always on** and **✕ Never on**.
-- Each section has its own **+ Add** button. It opens a box that already contains the site name, so you only type the rest (for example `/comics/*`).
+- Each section has its own **+ Add** button. It opens a box that already contains the site name, so you only type the rest (for example `/gallery/*`).
 - **✕** next to a link deletes it. Changes are saved immediately.
 - **+ Add site** at the top adds a site that has no rules yet.
 
@@ -72,17 +72,17 @@ The page and the popup stay in sync: a change in one shows up in the other right
 Use `*` to mean "anything":
 
 ```text
-https://example.com/comics/*            every page under /comics/
-https://example.com/node/*/8/simple     any id in the middle
+https://example.com/gallery/*           every page under /gallery/
+https://example.com/albums/*/photos     any album in the middle
 https://*.example.com/*                 every subdomain
-https://example.com/comics/ABD          just this page
+https://example.com/gallery/sunset      just this page
 ```
 
 Matching rules:
 
 - `http` / `https` and `www.` are ignored, and so is letter case.
-- `?…` and `#…` at the end of a link are ignored (so `/comics/ABD` also matches `/comics/ABD?page=2`), unless your rule contains `?` or `#` itself.
-- A trailing `/` is ignored, and `/*` at the end also matches the page itself (`/comics/*` matches `/comics`).
+- `?…` and `#…` at the end of a link are ignored (so `/gallery/sunset` also matches `/gallery/sunset?page=2`), unless your rule contains `?` or `#` itself.
+- A trailing `/` is ignored, and `/*` at the end also matches the page itself (`/gallery/*` matches `/gallery`).
 
 When you open the page from the popup, the site you were on is already open. A **Test a link** box tells you whether a link will be on or off, and which rule decided it.
 

@@ -273,7 +273,7 @@
     input.autocomplete = 'off';
     input.value = adding.value;
     input.setAttribute('aria-label', t('addRuleTo', { list: t(on ? 'pillOn' : 'pillOff'), site: siteLabel(adding.site) }));
-    input.placeholder = adding.site === OTHER ? '*.example.com/*' : adding.site + '/comics/*';
+    input.placeholder = adding.site === OTHER ? '*.example.com/*' : adding.site + '/gallery/*';
     input.addEventListener('input', () => {
       adding.value = input.value;
       if (adding.error) {
