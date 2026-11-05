@@ -2,6 +2,8 @@
 
 **Make slow, image-heavy pages usable again by loading images one at a time.**
 
+https://github.com/user-attachments/assets/124c9813-f9b6-4af5-b334-8af53bbf4707
+
 Some pages (long galleries, comic readers, photo archives) ask the browser to download dozens of images at once. On a slow connection or a busy server, that makes *everything* slow: nothing finishes, and the page feels frozen.
 
 Sequential Image Loader is a small Chrome extension that puts those images in a queue and loads them **in order, one after another** (or a few at a time, your choice). The first images appear quickly and the page stays responsive.
