@@ -221,6 +221,7 @@ async function init() {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   currentTab = tab || null;
 
+  globalThis.SILTheme.init();
   els.settingsBtn.addEventListener('click', () => toggleSettings(els.settingsView.classList.contains('hidden')));
   els.langButtons.forEach((btn) =>
     btn.addEventListener('click', async () => {

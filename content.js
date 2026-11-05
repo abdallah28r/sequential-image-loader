@@ -125,16 +125,21 @@
   }
 
   // --- On-page status pill ---------------------------------------------
+  // Lives in a closed shadow root so the page's CSS can't restyle it.
+
+  let pillText = null;
+  let pillFill = null;
+  let pillIcon = null;
 
   function updateIndicator() {
     if (totalSeen === 0) return;
     if (!indicatorEl) createIndicator();
 
     const remaining = totalSeen - totalDone;
-    indicatorEl.textContent = remaining > 0
-      ? `⏳ ${totalDone}/${totalSeen}`
-      : `✅ ${totalSeen}`;
-    indicatorEl.style.display = 'flex';
+    pillText.textContent = remaining > 0 ? `${totalDone} / ${totalSeen}` : String(totalSeen);
+    pillFill.style.width = Math.round((totalDone / totalSeen) * 100) + '%';
+    pillIcon.dataset.state = remaining > 0 ? 'loading' : 'done';
+    indicatorEl.style.display = 'block';
 
     clearTimeout(hideTimer);
     if (remaining === 0) {
@@ -150,19 +155,47 @@
     indicatorEl = document.createElement('div');
     indicatorEl.id = '__sil_indicator__';
     Object.assign(indicatorEl.style, {
+      all: 'initial',
       position: 'fixed',
       bottom: '14px',
-      insetInlineEnd: '14px',
+      right: '14px',
       zIndex: '2147483647',
-      background: 'rgba(18,20,24,0.88)',
-      color: '#fff',
-      font: '600 12px/1 ui-monospace, SFMono-Regular, Menlo, monospace',
-      padding: '7px 11px',
-      borderRadius: '999px',
-      boxShadow: '0 2px 10px rgba(0,0,0,0.35)',
       pointerEvents: 'none',
-      letterSpacing: '0.02em'
     });
+    const root = indicatorEl.attachShadow({ mode: 'closed' });
+    root.innerHTML = `
+      <style>
+        .pill { display: flex; align-items: center; gap: 8px; padding: 6px 11px 6px 8px;
+          background: rgba(16, 20, 27, 0.92); color: #eceef2; border-radius: 999px;
+          font: 600 12px/1 ui-monospace, SFMono-Regular, Consolas, monospace; letter-spacing: .02em;
+          box-shadow: 0 2px 10px rgba(0, 0, 0, .3); }
+        svg { width: 16px; height: 16px; display: block; }
+        .bar { width: 44px; height: 4px; border-radius: 4px; background: rgba(255, 255, 255, .18); overflow: hidden; }
+        .fill { height: 100%; width: 0; background: #f5a524; border-radius: 4px; transition: width .2s ease; }
+        [data-state="done"] .frames { display: none; }
+        [data-state="loading"] .check { display: none; }
+        @media (prefers-reduced-motion: reduce) { .fill { transition: none; } }
+      </style>
+      <div class="pill">
+        <span class="icon" data-state="loading">
+          <svg class="frames" viewBox="0 0 48 48" aria-hidden="true">
+            <rect x="18" y="5" width="25" height="21" rx="4" fill="#a9c0f0"/>
+            <rect x="11" y="12" width="25" height="21" rx="4" fill="#6f95e4"/>
+            <rect x="4" y="19" width="27" height="23" rx="4" fill="#3b6fd8"/>
+            <circle cx="12" cy="27" r="3" fill="#f59e0b"/>
+            <path d="M6 39l8-8 5 5 4-3 6 6z" fill="#fff"/>
+          </svg>
+          <svg class="check" viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="10" fill="#4fd18b"/>
+            <path d="M7.5 12.5l3 3 6-6.5" fill="none" stroke="#0c2a1a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
+        <span class="text"></span>
+        <span class="bar"><span class="fill" style="display:block"></span></span>
+      </div>`;
+    pillText = root.querySelector('.text');
+    pillFill = root.querySelector('.fill');
+    pillIcon = root.querySelector('.icon');
     (document.body || document.documentElement).appendChild(indicatorEl);
   }
 

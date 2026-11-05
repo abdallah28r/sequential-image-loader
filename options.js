@@ -106,7 +106,7 @@
     showToast(t('addedToast'));
   }
 
-  async function deleteRule(list, p) {
+  async function removeRule(list, p) {
     rules[list] = rules[list].filter((x) => x !== p);
     // Keep the site on screen (empty) so the user can add to it again.
     const g = groupOf(p);
@@ -212,7 +212,7 @@
     head.type = 'button';
     head.setAttribute('aria-expanded', String(isOpen));
     const total = lists.include.length + lists.exclude.length;
-    head.setAttribute('aria-label', t('siteRules', { site: siteLabel(g), n: total }));
+    head.setAttribute('aria-label', t(total === 1 ? 'siteRules1' : 'siteRules', { site: siteLabel(g), n: total }));
     const chev = el('span', 'chev', '›');
     chev.setAttribute('aria-hidden', 'true');
     const name = el('span', 'site-name', siteLabel(g));
@@ -316,9 +316,9 @@
     text.title = shown;
     const del = el('button', 'row-del', '✕');
     del.type = 'button';
-    del.title = t('deleteRule', { rule: Rules.safeDecode(p) });
+    del.title = t('removeRule', { rule: Rules.safeDecode(p) });
     del.setAttribute('aria-label', del.title);
-    del.addEventListener('click', () => deleteRule(list, p));
+    del.addEventListener('click', () => removeRule(list, p));
     li.append(text, del);
     return li;
   }
@@ -336,7 +336,7 @@
     else if (r.reason === 'include') msg = t('testOnInclude', { rule: Rules.safeDecode(r.rule) });
     else msg = t('testOffNoneC');
     els.testResult.textContent = msg;
-    els.testResult.className = 'test-result ' + (r.active ? 'is-on' : 'is-off');
+    els.testResult.className = 'test-result ' + (r.active ? 'is-on' : r.reason === 'exclude' ? 'is-blocked' : 'is-off');
   }
 
   // Coming from the popup: open that page's site (even if it has no rules yet)
@@ -364,6 +364,7 @@
     renderLang();
     await useFromUrl();
 
+    globalThis.SILTheme.init();
     els.siteBtn.addEventListener('click', addSite);
     els.siteInput.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') addSite();

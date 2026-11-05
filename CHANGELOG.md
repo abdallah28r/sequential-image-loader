@@ -5,6 +5,17 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-11-05
+
+### Changed
+- **New look ("Compact pro").** The popup and the Advanced settings page were redesigned: tighter spacing, one blue accent with an amber highlight, clearer status colors, and no emoji in the interface.
+- **New logo**: stacked image frames, for the toolbar icon (now also at 32 px), the popup and the settings page.
+- **New on-page counter**: a small pill with the logo, the count and a progress bar, which turns into a check mark when every image has loaded. It is isolated from the page's own styles.
+- Interface text was cleaned up: unused text removed, "Remove" used everywhere, and "1 rule" instead of "1 rules".
+
+### Added
+- **Light, Dark and Auto themes.** Pick one in the popup's settings or at the top of the Advanced settings page; Auto (the default) follows your system. Both windows stay in sync.
+
 ## [1.2.0] - 2026-11-05
 
 ### Changed
@@ -58,7 +69,8 @@ First public release.
   - Language switch: English (default) and Arabic with full right-to-left layout.
   - List of all enabled sites, each with a **Disable** button.
 
-[Unreleased]: https://github.com/abdallah28r/sequential-image-loader/compare/v1.2.0...HEAD
+[Unreleased]: https://github.com/abdallah28r/sequential-image-loader/compare/v1.3.0...HEAD
+[1.3.0]: https://github.com/abdallah28r/sequential-image-loader/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/abdallah28r/sequential-image-loader/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/abdallah28r/sequential-image-loader/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/abdallah28r/sequential-image-loader/releases/tag/v1.0.0

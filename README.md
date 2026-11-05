@@ -9,6 +9,7 @@ Sequential Image Loader is a small Chrome extension that puts those images in a 
 - 🔌 **Off by default.** It does nothing until you turn it on for a site or a page.
 - 🎯 **You choose where it runs.** A whole site, one section (`https://example.com/comics/*`), or a single page. You can also block pages where it should never run.
 - 📊 **Live progress.** A small badge on the page and on the toolbar icon shows how many images are left.
+- 🌓 **Light, Dark or Auto.** The interface follows your system, or the theme you pick.
 - 🔒 **Private.** No tracking, no analytics, no network requests of its own. Settings stay in your browser.
 
 ---
@@ -35,7 +36,7 @@ Works in Chrome and other Chromium-based browsers (Edge, Brave, Opera, Vivaldi).
 1. Open the page that loads slowly.
 2. Click the extension icon. The popup tells you whether it's running on this page.
 3. Click **Turn on for the whole site** or **Turn on for this page only**. The page reloads automatically.
-4. Images now load in order. A small counter in the corner (for example `⏳ 4/23`) shows progress and disappears when everything has loaded.
+4. Images now load in order. A small counter in the corner (for example `4 / 23` with a progress bar) shows progress and disappears when everything has loaded.
 
 The popup only shows the buttons that make sense for the page you're on:
 
@@ -52,7 +53,7 @@ The popup also lists the rules that affect the current page, each with a **Remov
 
 ### Settings ⚙️
 
-Click the gear icon in the popup to change the language (English by default, or العربية with a right-to-left layout), or click **Open Advanced settings** at the bottom of the popup to manage all your rules.
+Click the gear icon in the popup to change the language (English by default, or العربية with a right-to-left layout) and the appearance (**Light**, **Dark** or **Auto**, which follows your system). Click **Open Advanced settings** at the bottom of the popup to manage all your rules.
 
 ### Advanced settings: all your rules
 
